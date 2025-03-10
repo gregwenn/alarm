@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager with Alarms and Sound</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+    input, button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      width: 80%;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Task Manager with Alarms and Sound</h1>
+  <p>Enter tasks and set alarm times:</p>
+  <input type="text" id="taskInput" placeholder="Enter your task" />
+  <input type="time" id="timeInput" />
+  <button onclick="addTask()">Add Task</button>
+  <p id="status"></p>
+
+  <h2>Task List</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Task</th>
+        <th>Alarm Time</th>
+      </tr>
+    </thead>
+    <tbody id="taskTable"></tbody>
+  </table>
+
+  <audio id="alarmSound" src="ringtone-126505.mp3" preload="auto"></audio> <!-- Audio file -->
+
+  <script>
+    const tasks = []; // Array to store tasks
+
+    function addTask() {
+      const task = document.getElementById("taskInput").value;
+      const time = document.getElementById("timeInput").value;
+      const alarmSound = document.getElementById("alarmSound");
+
+      if (!task || !time) {
+        document.getElementById("status").textContent = "Please enter a valid task and time.";
+        return;
+      }
+
+      const now = new Date();
+      const [hours, minutes] = time.split(":").map(Number);
+      const alarmTime = new Date();
+
+      alarmTime.setHours(hours, minutes, 0, 0);
+      const timeDifference = alarmTime - now;
+
+      if (timeDifference < 0) {
+        document.getElementById("status").textContent = "The alarm time has already passed. Please set a future time.";
+        return;
+      }
+
+      // Store the task and alarm time in the tasks array
+      tasks.push({ task, time });
+
+      // Update the task list table
+      updateTaskTable();
+
+      // Set the alarm for the task
+      setTimeout(() => {
+        alert(`ALARM! Time's up for your task: "${task}"`);
+        alarmSound.play(); // Play the notification sound
+      }, timeDifference);
+
+      // Reset the input fields and status
+      document.getElementById("taskInput").value = "";
+      document.getElementById("timeInput").value = "";
+      document.getElementById("status").textContent = `Task added: "${task}" with alarm set for ${time}.`;
+    }
+
+    function updateTaskTable() {
+      const taskTable = document.getElementById("taskTable");
+      taskTable.innerHTML = ""; // Clear the existing rows
+
+      tasks.forEach(taskObj => {
+        const row = document.createElement("tr");
+        const taskCell = document.createElement("td");
+        const timeCell = document.createElement("td");
+
+        taskCell.textContent = taskObj.task;
+        timeCell.textContent = taskObj.time;
+
+        row.appendChild(taskCell);
+        row.appendChild(timeCell);
+        taskTable.appendChild(row);
+      });
+    }
+  </script>
+</body>
+</html>
